@@ -16,7 +16,8 @@ namespace Ball_of_Duty_Server.Domain
 
         private Dictionary<int, Player> _players = new Dictionary<int, Player>();
 
-        public void AddPlayer(Player player, string clientIp, int clientUdpPort, int clientTcpPort, Specializations clientSpecialization)
+        public void AddPlayer(Player player, string clientIp, int clientUdpPort, int clientTcpPort,
+            Specializations clientSpecialization)
         {
             _players.Add(player.Id, player);
             player.CurrentCharacter = Map.AddCharacter(player.Nickname, clientSpecialization);
@@ -31,7 +32,10 @@ namespace Ball_of_Duty_Server.Domain
             {
                 Id = p.Id,
                 Nickname = p.Nickname,
-                CharacterId = p.CurrentCharacter?.Id ?? 0 // TODO: look into some kind of assurance that CurrentCharacter is never null.
+                CharacterId = p.CurrentCharacter?.Id ?? 0,
+                Gold = p.Gold,
+                HighScore = p.HighScore
+                // TODO: look into some kind of assurance that CurrentCharacter is never null.
             }).ToArray();
         }
 
@@ -40,11 +44,8 @@ namespace Ball_of_Duty_Server.Domain
             Player player;
             if (_players.TryGetValue(playerId, out player))
             {
+                player.CurrentCharacter?.Destroy();
                 _players.Remove(playerId);
-                if (player.CurrentCharacter != null)
-                {
-                    Map.RemoveObject(player.CurrentCharacter.Id);
-                }
             }
         }
 
